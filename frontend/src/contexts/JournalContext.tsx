@@ -23,6 +23,8 @@ interface JournalContextType {
 
 const JournalContext = createContext<JournalContextType | undefined>(undefined);
 
+export { JournalContext };
+
 export const useJournal = () => {
   const context = useContext(JournalContext);
   if (context === undefined) {

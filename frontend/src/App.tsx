@@ -9,9 +9,14 @@ import { DashboardPage } from './pages/DashboardPage';
 import { EditorPage } from './pages/EditorPage';
 import { CalendarPage } from './pages/CalendarPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsOfServicePage } from './pages/TermsOfServicePage';
+import { SupportPage } from './pages/SupportPage';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { FloatingActionButton } from './components/layout/FloatingActionButton';
+import { Footer } from './components/layout/Footer';
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -66,6 +71,14 @@ const AppContent: React.FC = () => {
         return <CalendarPage />;
       case 'profile':
         return <ProfilePage />;
+      case 'settings':
+        return <SettingsPage />;
+      case 'privacy':
+        return <PrivacyPolicyPage />;
+      case 'terms':
+        return <TermsOfServicePage />;
+      case 'support':
+        return <SupportPage />;
       default:
         return <DashboardPage />;
     }
@@ -73,24 +86,27 @@ const AppContent: React.FC = () => {
 
   return (
     <JournalProvider>
-      <div className="min-h-screen bg-neutral-50 dark:bg-dark-50">
-        <Navbar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        
-        <div className="flex">
-          <Sidebar 
-            isOpen={isSidebarOpen} 
-            activeView={activeView} 
-            onViewChange={handleViewChange}
-          />
+      <div className="min-h-screen bg-neutral-50 dark:bg-dark-50 flex flex-col">
+        <div className="flex-1">
+          <Navbar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
           
-          <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : ''}`}>
-            <div className="max-w-7xl mx-auto">
-              {renderCurrentView()}
-            </div>
-          </main>
-        </div>
+          <div className="flex">
+            <Sidebar 
+              isOpen={isSidebarOpen} 
+              activeView={activeView} 
+              onViewChange={handleViewChange}
+            />
+            
+            <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : ''}`}>
+              <div className="max-w-7xl mx-auto">
+                {renderCurrentView()}
+              </div>
+            </main>
+          </div>
 
-        <FloatingActionButton onClick={() => setActiveView('editor')} />
+          <FloatingActionButton onClick={() => setActiveView('editor')} />
+        </div>
+        <Footer onLinkClick={handleViewChange} />
       </div>
     </JournalProvider>
   );
