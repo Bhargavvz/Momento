@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Grid, List, Plus, TrendingUp, Clock, Target, Zap } from 'lucide-react';
@@ -6,20 +6,33 @@ import { useJournal } from '../contexts/JournalContext';
 import { EntryCard } from '../components/journal/EntryCard';
 import { SearchAndFilter } from '../components/journal/SearchAndFilter';
 import { Button } from '../components/ui/Button';
+import { EntryDetailModal } from '../components/journal/EntryDetailModal';
+import { JournalEntry } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 export const DashboardPage: React.FC = () => {
   const { 
     getFilteredEntries, 
     viewMode, 
     setViewMode, 
-    setCurrentEntry,
     entries 
   } = useJournal();
+  const navigate = useNavigate();
+
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
   const filteredEntries = getFilteredEntries();
 
-  const handleEntryClick = (entry: any) => {
-    setCurrentEntry(entry);
+  const handleEntryClick = (entry: JournalEntry) => {
+    setSelectedEntry(entry);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedEntry(null);
+  };
+
+  const handleCreateNew = () => {
+    navigate('/app/editor');
   };
 
   const totalEntries = entries.length;
@@ -205,7 +218,7 @@ export const DashboardPage: React.FC = () => {
               Start your journaling journey by creating your first entry. Share your thoughts, track your mood, and build lasting memories.
             </p>
             <Button 
-              onClick={() => window.location.hash = '#editor'}
+              onClick={handleCreateNew}
               className="bg-gradient-to-r from-primary-600 to-accent-600 hover:from-primary-700 hover:to-accent-700 text-white px-8 py-3 rounded-2xl shadow-soft-lg"
             >
               Create First Entry
@@ -236,6 +249,14 @@ export const DashboardPage: React.FC = () => {
           </div>
         )}
       </motion.div>
+
+      {selectedEntry && (
+        <EntryDetailModal
+          entry={selectedEntry}
+          isOpen={!!selectedEntry}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };

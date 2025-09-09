@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { JournalProvider } from './contexts/JournalContext';
 import { LandingPage } from './pages/LandingPage';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -13,102 +12,41 @@ import { SettingsPage } from './pages/SettingsPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsOfServicePage } from './pages/TermsOfServicePage';
 import { SupportPage } from './pages/SupportPage';
-import { Navbar } from './components/layout/Navbar';
-import { Sidebar } from './components/layout/Sidebar';
-import { FloatingActionButton } from './components/layout/FloatingActionButton';
-import { Footer } from './components/layout/Footer';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import MainLayout from './components/layout/MainLayout';
+import { JournalProvider } from './contexts/JournalContext';
 
-const AppContent: React.FC = () => {
-  const { user } = useAuth();
-  const [activeView, setActiveView] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showLanding, setShowLanding] = useState(!user);
+const AppRoutes: React.FC = () => {
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsSidebarOpen(true);
-      } else {
-        setIsSidebarOpen(false);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    setShowLanding(!user);
-  }, [user]);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleViewChange = (view: string) => {
-    setActiveView(view);
-    if (window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
-    }
-  };
-
-  if (showLanding && !user) {
-    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+  if (loading) {
+    // You might want to show a loading spinner here
+    return <div>Loading...</div>;
   }
-
-  if (!user) {
-    return <AuthPage />;
-  }
-
-  const renderCurrentView = () => {
-    switch (activeView) {
-      case 'dashboard':
-        return <DashboardPage />;
-      case 'editor':
-        return <EditorPage />;
-      case 'calendar':
-        return <CalendarPage />;
-      case 'profile':
-        return <ProfilePage />;
-      case 'settings':
-        return <SettingsPage />;
-      case 'privacy':
-        return <PrivacyPolicyPage />;
-      case 'terms':
-        return <TermsOfServicePage />;
-      case 'support':
-        return <SupportPage />;
-      default:
-        return <DashboardPage />;
-    }
-  };
 
   return (
-    <JournalProvider>
-      <div className="min-h-screen bg-neutral-50 dark:bg-dark-50 flex flex-col">
-        <div className="flex-1">
-          <Navbar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-          
-          <div className="flex">
-            <Sidebar 
-              isOpen={isSidebarOpen} 
-              activeView={activeView} 
-              onViewChange={handleViewChange}
-            />
-            
-            <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : ''}`}>
-              <div className="max-w-7xl mx-auto">
-                {renderCurrentView()}
-              </div>
-            </main>
-          </div>
+    <Routes>
+      <Route path="/" element={user ? <Navigate to="/app/dashboard" /> : <LandingPage onGetStarted={() => {}} />} />
+      <Route path="/login" element={!user ? <AuthPage /> : <Navigate to="/app/dashboard" />} />
 
-          <FloatingActionButton onClick={() => setActiveView('editor')} />
-        </div>
-        <Footer onLinkClick={handleViewChange} />
-      </div>
-    </JournalProvider>
+      <Route path="/app" element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="editor" element={<EditorPage />} />
+          <Route path="editor/:id" element={<EditorPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+      </Route>
+
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsOfServicePage />} />
+      <Route path="/support" element={<SupportPage />} />
+
+      {/* Redirect any unknown routes to the dashboard if logged in, or landing page if not */}
+      <Route path="*" element={<Navigate to={user ? "/app/dashboard" : "/"} />} />
+    </Routes>
   );
 };
 
@@ -117,7 +55,9 @@ function App() {
     <Router>
       <ThemeProvider>
         <AuthProvider>
-          <AppContent />
+          <JournalProvider>
+            <AppRoutes />
+          </JournalProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

@@ -1,12 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { BookOpen, Github, Twitter, Heart, Sparkles, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-interface FooterProps {
-  onLinkClick?: (page: string) => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onLinkClick }) => {
+export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
@@ -121,26 +118,26 @@ export const Footer: React.FC<FooterProps> = ({ onLinkClick }) => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
             <div className="flex items-center space-x-4 text-xs text-neutral-500 dark:text-dark-500">
-              <button 
-                onClick={() => onLinkClick?.('privacy')}
+              <Link
+                to="/privacy"
                 className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               >
                 Privacy Policy
-              </button>
+              </Link>
               <span>•</span>
-              <button 
-                onClick={() => onLinkClick?.('terms')}
+              <Link
+                to="/terms"
                 className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               >
                 Terms of Service
-              </button>
+              </Link>
               <span>•</span>
-              <button 
-                onClick={() => onLinkClick?.('support')}
+              <Link
+                to="/support"
                 className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
               >
                 Support
-              </button>
+              </Link>
             </div>
             <div className="text-xs text-neutral-500 dark:text-dark-500">
               Version 1.0.0 • Built with React & TypeScript
